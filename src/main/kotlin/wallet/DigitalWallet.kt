@@ -14,6 +14,7 @@ import java.time.LocalDateTime
 class DigitalWallet {
     val users = mutableListOf<User>()
     val accounts = mutableListOf<Account>()
+    val loyaltyGifts = mutableListOf<LoyaltyGift>()
 
     companion object Support {
         private fun now() = LocalDateTime.now()
@@ -28,14 +29,45 @@ class DigitalWallet {
         }
     }
 
+    fun login(email: String, password: String) {
+        assert(users.any { it.email == email && it.password == password}) {
+            "Wrong email or password"
+        }
+    }
+
     fun register(user: User) {
         users.add(user)
+    }
+
+    fun deleteUser(user: User) {
+        this.assertAccountWithoutFund(user.account)
+        this.accounts.remove(user.account)
+        this.users.remove(user)
+    }
+
+    fun getAllAdmins() = this.users.filter { it.isAdmin }
+
+    fun transfer(fromCVU : String, toCVU: String, amount: Double) {
+        val fromAccount = this.accountByCVU(fromCVU)
+        val toAccount = this.accountByCVU(toCVU)
+        val date = LocalDateTime.now()
+        this.makeTransfer(CashOutTransfer(date, -amount, fromAccount, toAccount), CashInTransfer(date, amount, fromAccount, toAccount))
+    }
+
+    fun transferMoneyFromCard(fromCVU: String, card: Card, amount: Double) {
+        val account = accountByCVU(fromCVU)
+        assertExistsUser(account.user)
+        account.addTransaction(CashInWithCard(now(), amount, card, account))
     }
 
     fun assignAccount(user: User, account: Account) {
         assertExistsUser(user)
         accounts.add(account)
         user.account = account
+    }
+
+    fun addLoyalty(loyaltyGift: LoyaltyGift) {
+        this.loyaltyGifts.add(loyaltyGift)
     }
 
     fun addGift(gift: InitialGift) {
@@ -54,6 +86,14 @@ class DigitalWallet {
         }) { "Account doesn't exists or it belongs to another user" }
     }
 
+    private fun assertAccountWithoutFund(account: Account?) {
+        if (account !== null) {
+            assert(account.balance == 0.0) {
+                "Can not remove ${account.cvu} with funds"
+            }
+        }
+    }
+
     fun makeTransfer(cashOut: CashOutTransfer, cashIn: CashInTransfer) {
         assertExistsUser(cashIn.from.user)
         assertExistsUser(cashIn.to.user)
@@ -65,8 +105,18 @@ class DigitalWallet {
             throw NoMoneyException("Account ${cashOut.from} have no enough money to make this transfer")
         }
 
-        accounts.first { it.cvu == cashOut.from.cvu }.addTransaction(cashOut)
+        val cashOutAccount = accounts.first { it.cvu == cashOut.from.cvu }
+        cashOutAccount.addTransaction(cashOut)
+        checkLoyalties(cashOutAccount, cashOut)
         accounts.first { it.cvu == cashIn.to.cvu }.addTransaction(cashIn)
+    }
+
+    fun checkLoyalties(account: Account, transactional: Transactional) {
+        this.loyaltyGifts.forEach {
+            if (!account.isLoyaltyApplied(it) && it.check(account)) {
+                it.apply(account, transactional)
+            }
+        }
     }
 
     fun accountByCVU(cvu: String) =

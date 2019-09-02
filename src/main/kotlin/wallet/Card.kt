@@ -7,26 +7,23 @@ abstract class Card(
     val fullName: String,
     val endDate: LocalDate,
     val securityCode: String
-) : Accountable
+) {
+    fun maskedCard(): String {
+        val card = cardNumber.split(" ").joinToString { "" }
+        return "xxxx xxxx xxxx ${card.subSequence(card.length - 4, card.length)}"
+    }
+}
 
 class CreditCard(
     cardNumber: String,
     fullName: String,
     endDate: LocalDate,
     securityCode: String
-) : Card(cardNumber, fullName, endDate, securityCode) {
-    override fun addTransaction(transaction: Transactional) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-}
+) : Card(cardNumber, fullName, endDate, securityCode)
 
 class DebitCard(
     cardNumber: String,
     fullName: String,
     endDate: LocalDate,
     securityCode: String
-) : Card(cardNumber, fullName, endDate, securityCode) {
-    override fun addTransaction(transaction: Transactional) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-}
+) : Card(cardNumber, fullName, endDate, securityCode)

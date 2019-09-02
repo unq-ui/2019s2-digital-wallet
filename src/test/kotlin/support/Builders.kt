@@ -10,8 +10,9 @@ class UserBuilder() {
     var email: String = "jon@snow.io"
     var password: String = "jon"
     var account: Account? = null
+    var isAdmin: Boolean = false
 
-    fun build(): User = User(idCard, firstName, lastName, email, password)
+    fun build(): User = User(idCard, firstName, lastName, email, password, isAdmin)
 
     fun idCard(value: String): UserBuilder {
         idCard = value

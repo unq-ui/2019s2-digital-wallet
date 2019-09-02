@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
 import org.spekframework.spek2.style.specification.describe
 import support.UserBuilder
+import java.time.LocalDate
 
 object DigitalWalletSpec : Spek({
     val wallet by memoized { DigitalWallet() }
@@ -33,7 +34,8 @@ object DigitalWalletSpec : Spek({
                 firstName = "Cosme",
                 lastName = "Fulanito",
                 email = "cosme@fulanito.io",
-                password = "homero"
+                password = "homero",
+                isAdmin = false
             )
             wallet.register(user)
             assertEquals("12.345.678", wallet.users.first().idCard)
@@ -41,7 +43,7 @@ object DigitalWalletSpec : Spek({
             assertEquals("Fulanito", wallet.users.first().lastName)
             assertEquals("cosme@fulanito.io", wallet.users.first().email)
             assertEquals("homero", wallet.users.first().password)
-
+            assertFalse(wallet.users.first().isAdmin)
         }
 
         context("Account creation") {
@@ -116,6 +118,13 @@ object DigitalWalletSpec : Spek({
 
             assertEquals(50.0, wallet.accountByCVU(accountFrom.cvu).balance)
             assertEquals(350.0, wallet.accountByCVU(accountTo.cvu).balance)
+        }
+
+        it("add money to an existing account") {
+            val creditCard = CreditCard("1111 1111 1111 1111", "fullName", LocalDate.now(), "1234")
+            assertEquals(200.0, wallet.accountByCVU("00001111").balance)
+            wallet.transferMoneyFromCard("00001111", creditCard, 100.0)
+            assertEquals(300.0, wallet.accountByCVU("00001111").balance)
         }
     }
 })
