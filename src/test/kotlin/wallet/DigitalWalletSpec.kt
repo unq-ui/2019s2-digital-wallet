@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
 import org.spekframework.spek2.style.specification.describe
 import support.UserBuilder
+import java.time.LocalDate
 
 object DigitalWalletSpec : Spek({
     val wallet by memoized { DigitalWallet() }
@@ -27,13 +28,61 @@ object DigitalWalletSpec : Spek({
             assertEquals("123", wallet.users.first().idCard)
         }
 
+        it("should add admin to list when register") {
+            val admin = UserBuilder().isAdmin(true).build()
+            assertEquals(0, wallet.users.size)
+            wallet.register(admin)
+            assertEquals(1, wallet.users.size)
+            assertTrue(wallet.users.first().isAdmin)
+        }
+
+        it("should add two users, only one is admin") {
+            assertEquals(0, wallet.users.size)
+            val admin = UserBuilder().isAdmin(true).build()
+            val user = UserBuilder().idCard("123").build()
+            wallet.register(admin)
+            wallet.register(user)
+            assertEquals(2, wallet.users.size)
+            assertEquals(1, wallet.getAllAdmins().size)
+        }
+
+        it("should remove user") {
+            assertEquals(0, wallet.users.size)
+            val user = UserBuilder().idCard("123").build()
+            val account = Account(user, "1234")
+            wallet.register(user)
+            wallet.assignAccount(user, account)
+            assertEquals(1, wallet.users.size)
+            assertEquals(1, wallet.accounts.size)
+            wallet.deleteUser(user)
+            assertEquals(0, wallet.users.size)
+            assertEquals(0, wallet.accounts.size)
+        }
+
+        it("should login an existing user") {
+            assertEquals(0, wallet.users.size)
+            val user = UserBuilder().idCard("123").email("pepe@gmail.com").password("pepe").build()
+            wallet.register(user)
+            assertEquals(1, wallet.users.size)
+            val loginUser = wallet.login("pepe@gmail.com", "pepe")
+            assertEquals(user.email, loginUser.email)
+            assertEquals(user.password, loginUser.password)
+            assertEquals(user.idCard, loginUser.idCard)
+        }
+
+        it("should throw exception if not found user") {
+            assertEquals(0, wallet.users.size)
+            assertThrows<LoginException>("Wrong email or password") { wallet.login("pepe@gmail.com", "pepe") }
+        }
+
         it("should need all information when register") {
             val user = User(
                 idCard = "12.345.678",
                 firstName = "Cosme",
                 lastName = "Fulanito",
                 email = "cosme@fulanito.io",
-                password = "homero"
+                password = "homero",
+                isAdmin = false
             )
             wallet.register(user)
             assertEquals("12.345.678", wallet.users.first().idCard)
@@ -41,7 +90,7 @@ object DigitalWalletSpec : Spek({
             assertEquals("Fulanito", wallet.users.first().lastName)
             assertEquals("cosme@fulanito.io", wallet.users.first().email)
             assertEquals("homero", wallet.users.first().password)
-
+            assertFalse(wallet.users.first().isAdmin)
         }
 
         context("Account creation") {
@@ -116,6 +165,13 @@ object DigitalWalletSpec : Spek({
 
             assertEquals(50.0, wallet.accountByCVU(accountFrom.cvu).balance)
             assertEquals(350.0, wallet.accountByCVU(accountTo.cvu).balance)
+        }
+
+        it("add money to an existing account") {
+            val creditCard = CreditCard("1111 1111 1111 1111", "fullName", LocalDate.now(), "1234")
+            assertEquals(200.0, wallet.accountByCVU("00001111").balance)
+            wallet.transferMoneyFromCard("00001111", creditCard, 100.0)
+            assertEquals(300.0, wallet.accountByCVU("00001111").balance)
         }
     }
 })
