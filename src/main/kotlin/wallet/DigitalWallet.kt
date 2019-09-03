@@ -29,10 +29,9 @@ class DigitalWallet {
         }
     }
 
-    fun login(email: String, password: String) {
-        assert(users.any { it.email == email && it.password == password}) {
-            "Wrong email or password"
-        }
+    fun login(email: String, password: String) : User {
+        return users.firstOrNull{ it.email == email && it.password == password}
+            ?: throw LoginException("Wrong email or password")
     }
 
     fun register(user: User) {

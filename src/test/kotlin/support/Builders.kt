@@ -16,6 +16,21 @@ class UserBuilder() {
 
     fun idCard(value: String): UserBuilder {
         idCard = value
-        return this;
+        return this
+    }
+
+    fun email(value: String): UserBuilder {
+        email = value
+        return this
+    }
+
+    fun password(value: String): UserBuilder {
+        password = value
+        return this
+    }
+
+    fun isAdmin(value: Boolean) : UserBuilder {
+        isAdmin = value
+        return this
     }
 }

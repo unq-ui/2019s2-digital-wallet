@@ -21,9 +21,11 @@ class LoyaltyGift(
     val validFrom: LocalDate,
     val validTo: LocalDate
 ) {
-    fun check(account: Account) {
+    fun check(account: Account) : Boolean {
         val date = LocalDate.now()
-        return account.getAllCashOutTransactions().filter { validFrom.isAfter(date) && validTo.isBefore(date) && it.amount >= minAmountPerTransaction }.length >= minNumberOfTransactions
+        return account.getAllCashOutTransactions().filter {
+            validFrom.isAfter(date) && validTo.isBefore(date) && it.amount >= minAmountPerTransaction
+        }.size >= minNumberOfTransactions
     }
 
     fun apply(account: Account, transactional: Transactional) {
