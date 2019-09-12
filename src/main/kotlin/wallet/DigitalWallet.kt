@@ -45,11 +45,11 @@ class DigitalWallet {
     }
 
     fun blockAccount(account: Account) {
-        this.accountByCVU(account.cvu).setBlocked()
+        this.accountByCVU(account.cvu).block()
     }
 
     fun unblockAccount(account: Account) {
-        this.accountByCVU(account.cvu).setUnblocked()
+        this.accountByCVU(account.cvu).unblock()
     }
 
     fun getAllAdmins() = this.users.filter { it.isAdmin }

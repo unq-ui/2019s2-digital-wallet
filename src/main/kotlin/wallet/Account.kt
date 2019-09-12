@@ -17,22 +17,18 @@ class Account(val user: User, val cvu: String) {
         state.addTransaction(this, transaction)
     }
 
-    private fun setState(state: Accountable) {
-        this.state = state
+    fun block() {
+        state = BlockedState()
+        isBlocked = true
     }
 
-    fun setBlocked() {
-        this.state = BlockedState()
-        this.isBlocked = true
-    }
-
-    fun setUnblocked() {
-        this.state = UnblockedState()
-        this.isBlocked = false
+    fun unblock() {
+        state = UnblockedState()
+        isBlocked = false
     }
 
     fun addLoyalty(loyaltyGift: LoyaltyGift) {
-        this.state.addLoyalty(this, loyaltyGift)
+        state.addLoyalty(this, loyaltyGift)
     }
 
     fun isLoyaltyApplied(loyaltyGift: LoyaltyGift): Boolean {
@@ -57,12 +53,10 @@ class UnblockedState: Accountable {
 
 class BlockedState: Accountable {
     override fun addTransaction(account: Account, transaction: Transactional) {
-        val cvu = account.cvu
-        throw BlockedAccountException("Account with cvu ${cvu} is blocked and unable to perform operations")
+        throw BlockedAccountException("Account with cvu ${account.cvu} is blocked and unable to perform operations")
     }
 
     override fun addLoyalty(account: Account, loyaltyGift: LoyaltyGift) {
-        val cvu = account.cvu
-        throw BlockedAccountException("Account with cvu ${cvu} is blocked and unable to accept any loyalty")
+        throw BlockedAccountException("Account with cvu ${account.cvu} is blocked and unable to accept any loyalty")
     }
 }

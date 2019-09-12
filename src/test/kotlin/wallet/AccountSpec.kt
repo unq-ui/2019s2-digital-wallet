@@ -33,7 +33,7 @@ object AccountSpec : Spek({
             val from = AccountBuilder().user(anotherUser).build()
             val cashInTransfer = CashInTransfer(LocalDateTime.now(), amount, from, to )
 
-            to.setUnblocked()
+            to.unblock()
             to.addTransaction(cashInTransfer)
 
             assert(!to.isBlocked)
@@ -46,7 +46,7 @@ object AccountSpec : Spek({
             val from = AccountBuilder().user(anotherUser).build()
             val cashInTransfer = CashInTransfer(LocalDateTime.now(), amount, from, to )
 
-            to.setBlocked()
+            to.block()
 
             assert(to.isBlocked)
             assertThrows<BlockedAccountException> { to.addTransaction(cashInTransfer) }
@@ -62,7 +62,7 @@ object AccountSpec : Spek({
                 LocalDate.MAX
             )
 
-            to.setUnblocked()
+            to.unblock()
             to.addLoyalty(cashInLoyalty)
 
             assert(!to.isBlocked)
@@ -79,7 +79,7 @@ object AccountSpec : Spek({
                 LocalDate.MAX
             )
 
-            to.setBlocked()
+            to.block()
 
             assert(to.isBlocked)
             assertThrows<BlockedAccountException> { to.addLoyalty(cashInLoyalty) }

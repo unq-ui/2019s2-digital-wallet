@@ -268,7 +268,7 @@ object DigitalWalletSpec : Spek({
         }
 
         it("a wallet can't add gift to a blocked account") {
-            accountFrom.setBlocked()
+            accountFrom.block()
 
             assertThrows<BlockedAccountException> {
                 wallet.addGift(DigitalWallet.createGift(accountFrom, 200.0))
@@ -280,7 +280,7 @@ object DigitalWalletSpec : Spek({
             val account = wallet.accountByCVU("00001111")
             assertEquals(200.0, account.balance)
 
-            account.setBlocked()
+            account.block()
 
             assertThrows<BlockedAccountException> {
                 wallet.transferMoneyFromCard("00001111", creditCard, 100.0)
