@@ -1,16 +1,10 @@
 package wallet
 
-interface Accountable {
-    fun addTransaction(account: Account, transaction: Transactional)
-    fun addLoyalty(account: Account, loyaltyGift: LoyaltyGift)
-}
-
 class Account(val user: User, val cvu: String) {
-
     var balance: Double = 0.0
     val transactions: MutableList<Transactional> = mutableListOf()
     val appliedLoyalties: MutableList<LoyaltyGift> = mutableListOf()
-    private var state: Accountable = UnblockedState()
+    private var state: AccountableState = UnblockedState()
     var isBlocked = false
 
     fun addTransaction(transaction: Transactional) {
@@ -40,7 +34,12 @@ class Account(val user: User, val cvu: String) {
     }
 }
 
-class UnblockedState: Accountable {
+interface AccountableState {
+    fun addTransaction(account: Account, transaction: Transactional)
+    fun addLoyalty(account: Account, loyaltyGift: LoyaltyGift)
+}
+
+class UnblockedState: AccountableState {
     override fun addTransaction(account: Account, transaction: Transactional) {
         account.transactions.add(transaction)
         account.balance += transaction.amount
@@ -51,7 +50,7 @@ class UnblockedState: Accountable {
     }
 }
 
-class BlockedState: Accountable {
+class BlockedState: AccountableState {
     override fun addTransaction(account: Account, transaction: Transactional) {
         throw BlockedAccountException("Account with cvu ${account.cvu} is blocked and unable to perform operations")
     }
