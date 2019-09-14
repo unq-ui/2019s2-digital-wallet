@@ -1,22 +1,34 @@
 package wallet
 
 interface Accountable {
-    fun addTransaction(transaction: Transactional)
+    fun addTransaction(account: Account, transaction: Transactional)
+    fun addLoyalty(account: Account, loyaltyGift: LoyaltyGift)
 }
 
-class Account(val user: User, val cvu: String) : Accountable {
+class Account(val user: User, val cvu: String) {
 
     var balance: Double = 0.0
     val transactions: MutableList<Transactional> = mutableListOf()
     val appliedLoyalties: MutableList<LoyaltyGift> = mutableListOf()
+    private var state: Accountable = UnblockedState()
+    var isBlocked = false
 
-    override fun addTransaction(transaction: Transactional) {
-        transactions.add(transaction)
-        balance += transaction.amount
+    fun addTransaction(transaction: Transactional) {
+        state.addTransaction(this, transaction)
+    }
+
+    fun block() {
+        state = BlockedState()
+        isBlocked = true
+    }
+
+    fun unblock() {
+        state = UnblockedState()
+        isBlocked = false
     }
 
     fun addLoyalty(loyaltyGift: LoyaltyGift) {
-        appliedLoyalties.add(loyaltyGift)
+        state.addLoyalty(this, loyaltyGift)
     }
 
     fun isLoyaltyApplied(loyaltyGift: LoyaltyGift): Boolean {
@@ -25,5 +37,26 @@ class Account(val user: User, val cvu: String) : Accountable {
 
     fun getAllCashOutTransactions() : List<Transactional> {
         return transactions.filter { it.isCashOut() }
+    }
+}
+
+class UnblockedState: Accountable {
+    override fun addTransaction(account: Account, transaction: Transactional) {
+        account.transactions.add(transaction)
+        account.balance += transaction.amount
+    }
+
+    override fun addLoyalty(account: Account, loyaltyGift: LoyaltyGift) {
+        account.appliedLoyalties.add(loyaltyGift)
+    }
+}
+
+class BlockedState: Accountable {
+    override fun addTransaction(account: Account, transaction: Transactional) {
+        throw BlockedAccountException("Account with cvu ${account.cvu} is blocked and unable to perform operations")
+    }
+
+    override fun addLoyalty(account: Account, loyaltyGift: LoyaltyGift) {
+        throw BlockedAccountException("Account with cvu ${account.cvu} is blocked and unable to accept any loyalty")
     }
 }

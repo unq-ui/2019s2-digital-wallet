@@ -1,7 +1,6 @@
 package support
 
-import wallet.Account
-import wallet.User
+import wallet.*
 
 class UserBuilder() {
     private var idCard: String = "000"
@@ -31,6 +30,23 @@ class UserBuilder() {
 
     fun isAdmin(value: Boolean) : UserBuilder {
         isAdmin = value
+        return this
+    }
+}
+
+class AccountBuilder() {
+    var user: User = UserBuilder().build()
+    var cvu: String = "12345678-12345678910121"
+
+    fun build(): Account = Account(user, cvu)
+
+    fun user(value: User): AccountBuilder {
+        user = value
+        return this
+    }
+
+    fun cvu(value: String): AccountBuilder {
+        cvu = value
         return this
     }
 }

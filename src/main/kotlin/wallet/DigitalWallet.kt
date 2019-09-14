@@ -44,6 +44,14 @@ class DigitalWallet {
         this.users.remove(user)
     }
 
+    fun blockAccount(account: Account) {
+        this.accountByCVU(account.cvu).block()
+    }
+
+    fun unblockAccount(account: Account) {
+        this.accountByCVU(account.cvu).unblock()
+    }
+
     fun getAllAdmins() = this.users.filter { it.isAdmin }
 
     fun transfer(fromCVU : String, toCVU: String, amount: Double) {
@@ -56,6 +64,7 @@ class DigitalWallet {
     fun transferMoneyFromCard(fromCVU: String, card: Card, amount: Double) {
         val account = accountByCVU(fromCVU)
         assertExistsUser(account.user)
+        assertAccountUnblocked(account)
         account.addTransaction(CashInWithCard(now(), amount, card, account))
     }
 
@@ -71,6 +80,7 @@ class DigitalWallet {
 
     fun addGift(gift: InitialGift) {
         assertExistsAccount(gift.to)
+        assertAccountUnblocked(gift.to)
         accounts.first { it.cvu == gift.to.cvu }.addTransaction(gift)
     }
 
@@ -83,6 +93,12 @@ class DigitalWallet {
         assert(accounts.any {
             it.cvu == account.cvu && it.user.idCard == account.user.idCard
         }) { "Account doesn't exists or it belongs to another user" }
+    }
+
+    private fun assertAccountUnblocked(account: Account) {
+        assert(!account.isBlocked) {
+            throw BlockedAccountException("Account with ${account.cvu} is Blocked")
+        }
     }
 
     private fun assertAccountWithoutFund(account: Account?) {
@@ -100,6 +116,11 @@ class DigitalWallet {
         assertExistsAccount(cashIn.to)
         assert(cashIn.from == cashOut.from) { "Account ${cashIn.from.cvu} is inconsistent" }
         assert(cashIn.to == cashOut.to) { "Account ${cashIn.to.cvu} is inconsistent" }
+        assertAccountUnblocked(cashIn.from)
+        assertAccountUnblocked(cashIn.to)
+        assert(!cashIn.to.isBlocked) {
+            throw BlockedAccountException("Account with ${cashIn.from.cvu} is Blocked")
+        }
         assert(cashOut.from.balance >= cashIn.amount) {
             throw NoMoneyException("Account ${cashOut.from} have no enough money to make this transfer")
         }
