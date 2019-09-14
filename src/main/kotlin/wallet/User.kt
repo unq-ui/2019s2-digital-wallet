@@ -1,11 +1,11 @@
 package wallet
 
 data class User(
-    val idCard: String,
-    val firstName: String,
-    val lastName: String,
-    val email: String,
-    val password: String,
+    var idCard: String,
+    var firstName: String,
+    var lastName: String,
+    var email: String,
+    var password: String,
     var isAdmin: Boolean
 ) {
     var account: Account? = null
