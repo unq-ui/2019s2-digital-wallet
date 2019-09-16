@@ -1,6 +1,12 @@
 package wallet
 
 import java.time.LocalDateTime
+import wallet.Transfer
+import java.nio.ByteBuffer
+import java.util.*
+import kotlin.NoSuchElementException
+import kotlin.random.Random
+
 
 /**
  * Registrar usuario de DigitalWallet.
@@ -17,8 +23,11 @@ class DigitalWallet {
     val loyaltyGifts = mutableListOf<LoyaltyGift>()
 
     companion object Support {
+        private var random = Random(5988)
         private fun now() = LocalDateTime.now()
-        fun generateNewCVU() = "123"
+        fun generateNewCVU(): String {
+            return "${random.nextInt(0, 1000000000)}".padStart(9, '0')
+        }
         fun createGift(account: Account, amount: Double) = InitialGift(account, amount, now())
         fun createCashTransfer(amount: Double, from: Account, to: Account): Map<String, Transfer> {
             val now = now()
