@@ -3,21 +3,11 @@ package wallet
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-/**
- * Nombre
- * Tipo de Beneficio (descuento o regalo)
- * Porcentaje de descuento (en caso de ser descuento)
- * Importe de Regalo (en caso de ser regalo)
- * Cantidad de operaciones (*)
- * Importe de Cada Operación(**)
- * Vigencia Fecha Desde
- * Vigencia Fecha Hasta
- */
 class LoyaltyGift(
     val name: String,
     val strategy: LoyaltyGiftStrategy,
     val minNumberOfTransactions: Int,
-    val minAmountPerTransaction: Int,
+    val minAmountPerTransaction: Double,
     val validFrom: LocalDate,
     val validTo: LocalDate
 ) {
@@ -38,7 +28,7 @@ interface LoyaltyGiftStrategy {
     fun apply(account: Account, transactional: Transactional)
 }
 
-class DiscountGiftStrategy(val percentage: Int) : LoyaltyGiftStrategy {
+class DiscountGiftStrategy(val percentage: Double) : LoyaltyGiftStrategy {
     override fun apply(account: Account, transactional: Transactional) {
         account.addTransaction(CashInLoyalty(transactional.amount * percentage / 100.0, LocalDateTime.now()))
     }

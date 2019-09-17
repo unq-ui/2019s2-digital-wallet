@@ -55,9 +55,9 @@ object AccountSpec : Spek({
         it("should be able to receive loyalties on an Unblocked state") {
             val cashInLoyalty = LoyaltyGift(
                 "Discount Loyalty",
-                DiscountGiftStrategy(10),
+                DiscountGiftStrategy(10.0),
                 10,
-                100,
+                100.0,
                 LocalDate.now(),
                 LocalDate.MAX
             )
@@ -72,9 +72,9 @@ object AccountSpec : Spek({
         it("should be able to receive loyalties on an Unblocked state") {
             val cashInLoyalty = LoyaltyGift(
                 "Discount Loyalty",
-                DiscountGiftStrategy(10),
+                DiscountGiftStrategy(10.0),
                 10,
-                100,
+                100.0,
                 LocalDate.now(),
                 LocalDate.MAX
             )

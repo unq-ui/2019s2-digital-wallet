@@ -1,22 +1,9 @@
 package wallet
 
 import java.time.LocalDateTime
-import wallet.Transfer
-import java.nio.ByteBuffer
-import java.util.*
-import kotlin.NoSuchElementException
 import kotlin.random.Random
 
 
-/**
- * Registrar usuario de DigitalWallet.
- * Eliminar Usuarios de DigitalWallet.
- * Obtener el listado de usuarios del sistema indicando si es Administrador.
- * Desbloquear usuario de DigitalWallet
- * Login mediante correo electrónico y contraseña.
- * Transferir dinero de un CVU Origen a un CVU destino.
- * Ingresar Dinero a DigitalWallet mediante tarjeta de cŕedito.
- */
 class DigitalWallet {
     val users = mutableListOf<User>()
     val accounts = mutableListOf<Account>()
