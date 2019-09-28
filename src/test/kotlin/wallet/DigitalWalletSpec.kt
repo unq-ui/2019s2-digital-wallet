@@ -28,6 +28,21 @@ object DigitalWalletSpec : Spek({
             assertEquals("123", wallet.users.first().idCard)
         }
 
+        it("should throw exception if already exists user with credit card or email") {
+            val user1 = UserBuilder().idCard("11111").email("hodor@hodor.com").build()
+            val user2 = UserBuilder().idCard("11111").email("jon@snow.com").build()
+            val user3 = UserBuilder().idCard("22222").email("hodor@hodor.com").build()
+
+            wallet.register(user1)
+            assertThrows<AssertionError>("Credit card or e-mail already registered") {
+                wallet.register(user2)
+            }
+            assertThrows<AssertionError>("Credit card or e-mail already registered") {
+                wallet.register(user3)
+            }
+            assertEquals(1, wallet.users.size)
+        }
+
         it("should add admin to list when register") {
             val admin = UserBuilder().isAdmin(true).build()
             assertEquals(0, wallet.users.size)
@@ -38,8 +53,8 @@ object DigitalWalletSpec : Spek({
 
         it("should add two users, only one is admin") {
             assertEquals(0, wallet.users.size)
-            val admin = UserBuilder().isAdmin(true).build()
-            val user = UserBuilder().idCard("123").build()
+            val admin = UserBuilder(idCard = "1", email = "a@a", isAdmin = true).build()
+            val user = UserBuilder(idCard = "2", email = "b@b").build()
             wallet.register(admin)
             wallet.register(user)
             assertEquals(2, wallet.users.size)
@@ -156,8 +171,8 @@ object DigitalWalletSpec : Spek({
     describe("Transfers") {
         lateinit var accountFrom: Account
         lateinit var accountTo: Account
-        val userFrom by memoized { UserBuilder().idCard("11222333").build() }
-        val userTo by memoized { UserBuilder().idCard("44555666").build() }
+        val userFrom by memoized { UserBuilder(idCard = "11222333", email = "a@a").build() }
+        val userTo by memoized { UserBuilder(idCard = "44555666", email = "b@b").build() }
         beforeEachTest {
             accountFrom = Account(userFrom, "00001111")
             accountTo = Account(userTo, "00002222")

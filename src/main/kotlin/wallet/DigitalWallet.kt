@@ -31,6 +31,7 @@ class DigitalWallet {
     }
 
     fun register(user: User) {
+        assertNotTakenIdCardOrEMail(user)
         users.add(user)
     }
 
@@ -83,6 +84,11 @@ class DigitalWallet {
     private fun assertExistsUser(user: User) =
         assert(users.any { it.idCard == user.idCard }) {
             "User ${user.fullName()} with idCard ${user.idCard} is not register"
+        }
+
+    private fun assertNotTakenIdCardOrEMail(user: User) =
+        assert(users.all { it.idCard != user.idCard && it.email != user.email }) {
+            "Credit card or e-mail already registered"
         }
 
     private fun assertExistsAccount(account: Account) {
