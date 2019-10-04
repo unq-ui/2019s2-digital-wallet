@@ -34,11 +34,20 @@ object DigitalWalletSpec : Spek({
             val user3 = UserBuilder().idCard("22222").email("hodor@hodor.com").build()
 
             wallet.register(user1)
-            assertThrows<AssertionError>("Credit card or e-mail already registered") {
+            assertThrows<Exception>("Credit card or e-mail already registered") {
                 wallet.register(user2)
             }
-            assertThrows<AssertionError>("Credit card or e-mail already registered") {
+            assertThrows<Exception>("Credit card or e-mail already registered") {
                 wallet.register(user3)
+            }
+            assertEquals(1, wallet.users.size)
+        }
+
+        it("should throw exception if already exists user with credit card and email") {
+            val user1 = UserBuilder().idCard("11111").email("hodor@hodor.com").build()
+            wallet.register(user1)
+            assertThrows<Exception>("Credit card or e-mail already registered") {
+                wallet.register(user1)
             }
             assertEquals(1, wallet.users.size)
         }
@@ -114,7 +123,7 @@ object DigitalWalletSpec : Spek({
 
             it("should not assign account if user was not register") {
                 val account = Account(user, cvu)
-                assertThrows<AssertionError> { wallet.assignAccount(user, account) }
+                assertThrows<Exception> { wallet.assignAccount(user, account) }
             }
 
             it("user should be registered and then assign an account") {

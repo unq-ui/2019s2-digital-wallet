@@ -4,6 +4,10 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 
+fun assert(condition: Boolean, lazyMessage: () -> String) {
+    if(!condition) throw Exception(lazyMessage());
+}
+
 class DigitalWallet {
     val users = mutableListOf<User>()
     val accounts = mutableListOf<Account>()
@@ -116,7 +120,7 @@ class DigitalWallet {
         assertExistsUser(cashIn.to.user)
         assertExistsAccount(cashIn.from)
         assertExistsAccount(cashIn.to)
-        assert(cashIn.from == cashOut.from) { "Account ${cashIn.from.cvu} is inconsistent" }
+        if(cashIn.from == cashOut.from) { "Account ${cashIn.from.cvu} is inconsistent" }
         assert(cashIn.to == cashOut.to) { "Account ${cashIn.to.cvu} is inconsistent" }
         assertAccountUnblocked(cashIn.from)
         assertAccountUnblocked(cashIn.to)
