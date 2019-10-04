@@ -83,9 +83,11 @@ object DigitalWalletData {
     }
 }
 
+// DO NOT RUN!!
+// FOR TESTING ONLY!!
 fun main() {
     val digitalWallet = DigitalWallet()
     digitalWallet.register(User("1", "a", "a", "a@gmail.com", "a", true))
     digitalWallet.register(User("1", "a", "a", "a@gmail.com", "a", true))
-    digitalWallet.users.size
+    println(digitalWallet.users.size)
 }

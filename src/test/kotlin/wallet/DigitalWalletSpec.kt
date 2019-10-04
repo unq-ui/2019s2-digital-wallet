@@ -14,6 +14,7 @@ object DigitalWalletSpec : Spek({
         it("is created without users") {
             assertEquals(0, wallet.users.size)
         }
+
         it("is created without accounts") {
             assertEquals(0, wallet.accounts.size)
         }
@@ -34,10 +35,10 @@ object DigitalWalletSpec : Spek({
             val user3 = UserBuilder().idCard("22222").email("hodor@hodor.com").build()
 
             wallet.register(user1)
-            assertThrows<Exception>("Credit card or e-mail already registered") {
+            assertThrows<IllegalArgumentException>("Credit card or e-mail already registered") {
                 wallet.register(user2)
             }
-            assertThrows<Exception>("Credit card or e-mail already registered") {
+            assertThrows<IllegalArgumentException>("Credit card or e-mail already registered") {
                 wallet.register(user3)
             }
             assertEquals(1, wallet.users.size)
@@ -46,7 +47,7 @@ object DigitalWalletSpec : Spek({
         it("should throw exception if already exists user with credit card and email") {
             val user1 = UserBuilder().idCard("11111").email("hodor@hodor.com").build()
             wallet.register(user1)
-            assertThrows<Exception>("Credit card or e-mail already registered") {
+            assertThrows<IllegalArgumentException>("Credit card or e-mail already registered") {
                 wallet.register(user1)
             }
             assertEquals(1, wallet.users.size)
@@ -123,12 +124,11 @@ object DigitalWalletSpec : Spek({
 
             it("should not assign account if user was not register") {
                 val account = Account(user, cvu)
-                assertThrows<Exception> { wallet.assignAccount(user, account) }
+                assertThrows<IllegalArgumentException> { wallet.assignAccount(user, account) }
             }
 
             it("user should be registered and then assign an account") {
                 val account = Account(user, cvu)
-
                 assertEquals(0, wallet.accounts.size)
                 wallet.register(user)
                 wallet.assignAccount(user, account)
@@ -136,6 +136,7 @@ object DigitalWalletSpec : Spek({
                 assertEquals(account, wallet.accounts.first())
                 assertEquals(account, wallet.users.first().account)
             }
+
             it("when user is assigned to an account it receives $200 as a gift") {
                 val account = Account(user, cvu)
                 wallet.register(user)
@@ -157,21 +158,16 @@ object DigitalWalletSpec : Spek({
                 val account = Account(user, cvu)
                 wallet.register(user)
                 wallet.assignAccount(user, account)
-
                 wallet.blockAccount(account)
-
                 assert(account.isBlocked)
             }
-
 
             it("an account can be unblocked") {
                 val account = Account(user, cvu)
                 wallet.register(user)
                 wallet.assignAccount(user, account)
-
                 wallet.blockAccount(account)
                 wallet.unblockAccount(account)
-
                 assert(!account.isBlocked)
             }
         }
@@ -182,6 +178,7 @@ object DigitalWalletSpec : Spek({
         lateinit var accountTo: Account
         val userFrom by memoized { UserBuilder(idCard = "11222333", email = "a@a").build() }
         val userTo by memoized { UserBuilder(idCard = "44555666", email = "b@b").build() }
+
         beforeEachTest {
             accountFrom = Account(userFrom, "00001111")
             accountTo = Account(userTo, "00002222")
@@ -293,7 +290,6 @@ object DigitalWalletSpec : Spek({
 
         it("a wallet can't add gift to a blocked account") {
             accountFrom.block()
-
             assertThrows<BlockedAccountException> {
                 wallet.addGift(DigitalWallet.createGift(accountFrom, 200.0))
             }
@@ -303,9 +299,7 @@ object DigitalWalletSpec : Spek({
             val creditCard = CreditCard("1111 1111 1111 1111", "fullName", LocalDate.now(), "1234")
             val account = wallet.accountByCVU("00001111")
             assertEquals(200.0, account.balance)
-
             account.block()
-
             assertThrows<BlockedAccountException> {
                 wallet.transferMoneyFromCard("00001111", creditCard, 100.0)
             }

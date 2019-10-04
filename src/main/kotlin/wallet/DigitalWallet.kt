@@ -1,12 +1,7 @@
 package wallet
 
-import java.time.LocalDateTime
 import kotlin.random.Random
-
-
-fun assert(condition: Boolean, lazyMessage: () -> String) {
-    if(!condition) throw Exception(lazyMessage());
-}
+import java.time.LocalDateTime
 
 class DigitalWallet {
     val users = mutableListOf<User>()
@@ -30,17 +25,17 @@ class DigitalWallet {
     }
 
     fun login(email: String, password: String) : User {
-        return users.firstOrNull{ it.email == email && it.password == password}
+        return users.firstOrNull{ it.email == email && it.password == password }
             ?: throw LoginException("Wrong email or password")
     }
 
     fun register(user: User) {
-        assertNotTakenIdCardOrEMail(user)
+        requireNotTakenIdCardOrEMail(user)
         users.add(user)
     }
 
     fun deleteUser(user: User) {
-        this.assertAccountWithoutFund(user.account)
+        this.requireAccountWithoutFund(user.account)
         this.accounts.remove(user.account)
         this.users.remove(user)
     }
@@ -64,13 +59,13 @@ class DigitalWallet {
 
     fun transferMoneyFromCard(fromCVU: String, card: Card, amount: Double) {
         val account = accountByCVU(fromCVU)
-        assertExistsUser(account.user)
-        assertAccountUnblocked(account)
+        requireExistsUser(account.user)
+        requireAccountUnblocked(account)
         account.addTransaction(CashInWithCard(now(), amount, card, account))
     }
 
     fun assignAccount(user: User, account: Account) {
-        assertExistsUser(user)
+        requireExistsUser(user)
         accounts.add(account)
         user.account = account
     }
@@ -80,54 +75,54 @@ class DigitalWallet {
     }
 
     fun addGift(gift: InitialGift) {
-        assertExistsAccount(gift.to)
-        assertAccountUnblocked(gift.to)
+        requireExistsAccount(gift.to)
+        requireAccountUnblocked(gift.to)
         accounts.first { it.cvu == gift.to.cvu }.addTransaction(gift)
     }
 
-    private fun assertExistsUser(user: User) =
-        assert(users.any { it.idCard == user.idCard }) {
+    private fun requireExistsUser(user: User) =
+        require(users.any { it.idCard == user.idCard }) {
             "User ${user.fullName()} with idCard ${user.idCard} is not register"
         }
 
-    private fun assertNotTakenIdCardOrEMail(user: User) =
-        assert(users.all { it.idCard != user.idCard && it.email != user.email }) {
+    private fun requireNotTakenIdCardOrEMail(user: User) =
+        require(users.all { it.idCard != user.idCard && it.email != user.email }) {
             "Credit card or e-mail already registered"
         }
 
-    private fun assertExistsAccount(account: Account) {
-        assert(accounts.any {
+    private fun requireExistsAccount(account: Account) {
+        require(accounts.any {
             it.cvu == account.cvu && it.user.idCard == account.user.idCard
         }) { "Account doesn't exists or it belongs to another user" }
     }
 
-    private fun assertAccountUnblocked(account: Account) {
-        assert(!account.isBlocked) {
+    private fun requireAccountUnblocked(account: Account) {
+        require(!account.isBlocked) {
             throw BlockedAccountException("Account with ${account.cvu} is Blocked")
         }
     }
 
-    private fun assertAccountWithoutFund(account: Account?) {
+    private fun requireAccountWithoutFund(account: Account?) {
         if (account !== null) {
-            assert(account.balance == 0.0) {
+            require(account.balance == 0.0) {
                 "Can not remove ${account.cvu} with funds"
             }
         }
     }
 
     fun makeTransfer(cashOut: CashOutTransfer, cashIn: CashInTransfer) {
-        assertExistsUser(cashIn.from.user)
-        assertExistsUser(cashIn.to.user)
-        assertExistsAccount(cashIn.from)
-        assertExistsAccount(cashIn.to)
-        if(cashIn.from == cashOut.from) { "Account ${cashIn.from.cvu} is inconsistent" }
-        assert(cashIn.to == cashOut.to) { "Account ${cashIn.to.cvu} is inconsistent" }
-        assertAccountUnblocked(cashIn.from)
-        assertAccountUnblocked(cashIn.to)
-        assert(!cashIn.to.isBlocked) {
+        requireExistsUser(cashIn.from.user)
+        requireExistsUser(cashIn.to.user)
+        requireExistsAccount(cashIn.from)
+        requireExistsAccount(cashIn.to)
+        require(cashIn.from == cashOut.from) { "Account ${cashIn.from.cvu} is inconsistent" }
+        require(cashIn.to == cashOut.to) { "Account ${cashIn.to.cvu} is inconsistent" }
+        requireAccountUnblocked(cashIn.from)
+        requireAccountUnblocked(cashIn.to)
+        require(!cashIn.to.isBlocked) {
             throw BlockedAccountException("Account with ${cashIn.from.cvu} is Blocked")
         }
-        assert(cashOut.from.balance >= cashIn.amount) {
+        require(cashOut.from.balance >= cashIn.amount) {
             throw NoMoneyException("Account ${cashOut.from} have no enough money to make this transfer")
         }
 
