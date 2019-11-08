@@ -25,15 +25,18 @@ class LoyaltyGift(
 }
 
 interface LoyaltyGiftStrategy {
+    fun appliedValue(): Double
     fun apply(account: Account, transactional: Transactional)
 }
 
 class DiscountGiftStrategy(val percentage: Double) : LoyaltyGiftStrategy {
+    override fun appliedValue(): Double = percentage
     override fun apply(account: Account, transactional: Transactional) {
         account.addTransaction(CashInLoyalty(transactional.amount * percentage / 100.0, LocalDateTime.now()))
     }
 }
 class FixedGiftStrategy(val amount: Double) : LoyaltyGiftStrategy {
+    override fun appliedValue(): Double = amount
     override fun apply(account: Account, transactional: Transactional) {
         account.addTransaction(CashInLoyalty(amount, LocalDateTime.now()))
     }

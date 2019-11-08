@@ -9,8 +9,9 @@ abstract class Card(
     val securityCode: String
 ) {
     fun maskedCard(): String {
-        val card = cardNumber.split(" ").joinToString { "" }
-        return "xxxx xxxx xxxx ${card.subSequence(card.length - 4, card.length)}"
+        return cardNumber.mapIndexed { index, char ->
+            if (char == ' ' || index >= cardNumber.length - 4) char else 'x'
+        }.joinToString("")
     }
 }
 

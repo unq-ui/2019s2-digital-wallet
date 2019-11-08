@@ -59,7 +59,7 @@ class CashInTransfer (
         assert(amount >= 0) { "Amount should be >= 0. Actual value: $amount" }
     }
     override fun description(): String = "Transferencia de Ingreso"
-    override fun fullDescription(): String = "Transferencia de Ingreso desde $from por $$amount"
+    override fun fullDescription(): String = "Transferencia de Ingreso desde ${from.cvu} por $$amount"
     override fun isCashOut() = false
 }
 
@@ -73,7 +73,7 @@ class CashOutTransfer (
         assert(amount <= 0) { "Amount should be <= 0. Actual value: $amount" }
     }
     override fun description(): String = "Transferencia de Egreso"
-    override fun fullDescription(): String = "Transferencia de Egreso hacia $$from por $amount"
+    override fun fullDescription(): String = "Transferencia de Egreso hacia $${from.cvu} por $amount"
     override fun isCashOut() = true
 }
 
