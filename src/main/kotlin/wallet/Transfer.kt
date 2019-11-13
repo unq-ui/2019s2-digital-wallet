@@ -73,7 +73,7 @@ class CashOutTransfer (
         assert(amount <= 0) { "Amount should be <= 0. Actual value: $amount" }
     }
     override fun description(): String = "Transferencia de Egreso"
-    override fun fullDescription(): String = "Transferencia de Egreso hacia $${from.cvu} por $amount"
+    override fun fullDescription(): String = "Transferencia de Egreso hacia ${to.cvu} por $amount"
     override fun isCashOut() = true
 }
 
