@@ -1,7 +1,7 @@
 package wallet
 
-import kotlin.random.Random
 import java.time.LocalDateTime
+import kotlin.random.Random
 
 class DigitalWallet {
     val users = mutableListOf<User>()
@@ -123,9 +123,8 @@ class DigitalWallet {
             throw BlockedAccountException("Account with ${cashIn.from.cvu} is Blocked")
         }
         require(cashOut.from.balance >= cashIn.amount) {
-            throw NoMoneyException("Account ${cashOut.from} have no enough money to make this transfer")
+            throw NoMoneyException("Account ${cashOut.from.cvu} doesn't have enough money to make this transfer")
         }
-
         val cashOutAccount = accounts.first { it.cvu == cashOut.from.cvu }
         cashOutAccount.addTransaction(cashOut)
         checkLoyalties(cashOutAccount, cashOut)
